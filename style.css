@@ -260,24 +260,34 @@ html, body {
 
 #result-overlay {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  inset: 0;
   z-index: 500;
-  background: linear-gradient(to top, rgba(10,12,20,0.97) 60%, transparent 100%);
-  padding: 1.25rem 1.25rem calc(1rem + env(safe-area-inset-bottom));
+  background: rgba(10,12,20,0.55);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   animation: fade-up 0.25s ease-out;
+  gap: 1rem;
 }
 
 #result-overlay.hidden { display: none; }
+
+#btn-next-round {
+  font-size: 1rem;
+  padding: 0.9rem 2.5rem;
+}
 
 #result-overlay-inner {
   display: flex;
   align-items: center;
   gap: 1rem;
+  background: rgba(15,17,23,0.92);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.2rem;
+  width: 90%;
+  max-width: 420px;
 }
 
 #result-overlay-score {
@@ -318,8 +328,8 @@ html, body {
 #ro-street   { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
 #ro-mult     { font-size: 0.8rem; color: var(--gold); font-weight: 600; }
 
-.tap-hint {
-  font-size: 0.78rem;
+.map-hint {
+  font-size: 0.8rem;
   color: var(--text-muted);
   text-align: center;
   animation: pulse 2s ease-in-out infinite;

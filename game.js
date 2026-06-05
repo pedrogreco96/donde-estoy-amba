@@ -129,18 +129,15 @@ function initMap() {
   map.on('click', onMapClick);
 }
 
-let showingResult = false;  // true mientras se ve el overlay de resultado
+let showingResult = false;
 
 function onMapClick(e) {
-  if (showingResult) {
-    // Segundo tap: pasar a la siguiente ronda
-    nextRound();
-    return;
-  }
+  if (showingResult) return;  // ignorar taps mientras se muestra resultado
   if (guessMarker) map.removeLayer(guessMarker);
   pendingGuess = e.latlng;
   guessMarker  = L.marker(e.latlng, { icon: makePinIcon('guess') }).addTo(map);
-  document.getElementById('btn-confirm').disabled = false;
+  // Confirmar automáticamente
+  confirmGuess();
 }
 
 function makePinIcon(type) {
@@ -177,7 +174,6 @@ function startRound(idx) {
     if (layer instanceof L.Marker || layer instanceof L.Polyline) map.removeLayer(layer);
   });
   map.setView(AMBA_CENTER, AMBA_ZOOM);
-  document.getElementById('btn-confirm').disabled = true;
 
   const round    = dailyRounds[idx];
   const multText = round.mult > 1 ? `x${round.mult}` : '';
@@ -194,8 +190,7 @@ function startRound(idx) {
 }
 
 function confirmGuess() {
-  if (!pendingGuess) return;
-  document.getElementById('btn-confirm').disabled = true;
+  if (!pendingGuess || showingResult) return;
 
   const round  = dailyRounds[currentRound];
   const dist   = haversineKm(pendingGuess.lat, pendingGuess.lng, round.lat, round.lon);
@@ -370,7 +365,7 @@ function boot() {
     startRound(0);
   });
 
-  document.getElementById('btn-confirm').addEventListener('click', confirmGuess);
+  document.getElementById('btn-next-round').addEventListener('click', nextRound);
   document.getElementById('btn-share').addEventListener('click', share);
 }
 
