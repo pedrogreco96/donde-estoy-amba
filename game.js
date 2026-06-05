@@ -388,7 +388,7 @@ function boot() {
   });
 
   document.getElementById('btn-confirm').addEventListener('click', confirmGuess);
-  document.getElementById('btn-next-round').addEventListener('click', nextRound);
+  document.getElementById('screen-round-result').addEventListener('click', nextRound);
   document.getElementById('btn-share').addEventListener('click', share);
 }
 
