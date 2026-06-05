@@ -252,7 +252,6 @@ html, body {
   justify-content: flex-start;
   background: radial-gradient(ellipse at 50% 20%, #1a2540 0%, #0f1117 70%);
   overflow: hidden;
-  display: flex;
   flex-direction: column;
 }
 
