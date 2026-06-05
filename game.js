@@ -212,7 +212,6 @@ function showRoundResult(result) {
   const { intersection, guess, distKm, rawScore, finalScore, mult } = result;
 
   showingResult = true;
-  document.getElementById('btn-confirm').disabled = true;
 
   // Mostrar marcador del target y línea en el mapa principal
   const guessLL  = L.latLng(guess.lat, guess.lng);
