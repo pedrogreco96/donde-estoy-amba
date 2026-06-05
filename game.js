@@ -129,7 +129,14 @@ function initMap() {
   map.on('click', onMapClick);
 }
 
+let showingResult = false;  // true mientras se ve el overlay de resultado
+
 function onMapClick(e) {
+  if (showingResult) {
+    // Segundo tap: pasar a la siguiente ronda
+    nextRound();
+    return;
+  }
   if (guessMarker) map.removeLayer(guessMarker);
   pendingGuess = e.latlng;
   guessMarker  = L.marker(e.latlng, { icon: makePinIcon('guess') }).addTo(map);
@@ -157,9 +164,13 @@ function updateDots() {
 }
 
 function startRound(idx) {
-  currentRound = idx;
-  pendingGuess = null;
-  guessMarker  = null;
+  currentRound  = idx;
+  pendingGuess  = null;
+  guessMarker   = null;
+  showingResult = false;
+
+  // Ocultar overlay
+  document.getElementById('result-overlay').classList.add('hidden');
 
   // Limpiar marcadores del mapa
   map.eachLayer(layer => {
@@ -200,61 +211,33 @@ function confirmGuess() {
   showRoundResult(result);
 }
 
-// ─── RESULT SCREEN ────────────────────────────────────────────────────────────
+// ─── RESULT OVERLAY (sobre el mapa) ──────────────────────────────────────────
 
 function showRoundResult(result) {
   const { intersection, guess, distKm, rawScore, finalScore, mult } = result;
 
-  const circle = document.getElementById('result-score-circle');
-  circle.classList.remove('score-high', 'score-mid', 'score-low');
-  circle.classList.add(rawScore >= 75 ? 'score-high' : rawScore >= 40 ? 'score-mid' : 'score-low');
+  showingResult = true;
+  document.getElementById('btn-confirm').disabled = true;
 
-  document.getElementById('result-score-number').textContent = finalScore;
-  document.getElementById('result-distance').textContent     = `Distancia: ${formatDist(distKm)}`;
-  document.getElementById('result-street').textContent       = `El cruce era: ${intersection.label}`;
+  // Mostrar marcador del target y línea en el mapa principal
+  const guessLL  = L.latLng(guess.lat, guess.lng);
+  const targetLL = L.latLng(intersection.lat, intersection.lon);
+  L.marker(targetLL, { icon: makePinIcon('target') }).addTo(map);
+  L.polyline([guessLL, targetLL], { color: 'rgba(255,255,255,0.5)', dashArray: '6,4', weight: 2 }).addTo(map);
+  map.fitBounds(L.latLngBounds([guessLL, targetLL]).pad(0.35), { maxZoom: 14, animate: true });
 
-  const multNote = document.getElementById('result-multiplier-note');
-  if (mult > 1) {
-    multNote.textContent    = `Puntaje base ${rawScore} × ${mult} = ${finalScore} pts`;
-    multNote.style.display  = '';
-  } else {
-    multNote.textContent    = '';
-    multNote.style.display  = 'none';
-  }
+  // Rellenar overlay
+  const scoreEl = document.getElementById('result-overlay-score');
+  scoreEl.classList.remove('score-high', 'score-mid', 'score-low');
+  scoreEl.classList.add(rawScore >= 75 ? 'score-high' : rawScore >= 40 ? 'score-mid' : 'score-low');
 
-  document.getElementById('btn-next-round').textContent =
-    currentRound < 4 ? 'Siguiente ronda →' : 'Ver resultados';
+  document.getElementById('ro-pts').textContent      = finalScore;
+  document.getElementById('ro-distance').textContent = `📏 ${formatDist(distKm)}`;
+  document.getElementById('ro-street').textContent   = `📍 ${intersection.label}`;
+  document.getElementById('ro-mult').textContent     =
+    mult > 1 ? `Base ${rawScore} × ${mult} = ${finalScore} pts` : '';
 
-  showScreen('screen-round-result');
-
-  // Mini-mapa
-  setTimeout(() => {
-    if (miniMap) { miniMap.off(); miniMap.remove(); }
-
-    const guessLL  = L.latLng(guess.lat, guess.lng);
-    const targetLL = L.latLng(intersection.lat, intersection.lon);
-    const mid      = L.latLng((guess.lat + intersection.lat) / 2, (guess.lng + intersection.lon) / 2);
-
-    miniMap = L.map('result-map-mini', {
-      center: mid,
-      zoom: 11,
-      zoomControl: false,
-      attributionControl: false,
-      dragging: false,
-      scrollWheelZoom: false,
-    });
-
-    L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { maxZoom: 19 }
-    ).addTo(miniMap);
-
-    L.marker(guessLL,  { icon: makePinIcon('guess')  }).addTo(miniMap);
-    L.marker(targetLL, { icon: makePinIcon('target') }).addTo(miniMap);
-    L.polyline([guessLL, targetLL], { color: 'rgba(255,255,255,0.5)', dashArray: '6,4', weight: 2 }).addTo(miniMap);
-
-    miniMap.fitBounds(L.latLngBounds([guessLL, targetLL]).pad(0.4), { maxZoom: 14 });
-  }, 80);
+  document.getElementById('result-overlay').classList.remove('hidden');
 }
 
 function nextRound() {
@@ -388,7 +371,6 @@ function boot() {
   });
 
   document.getElementById('btn-confirm').addEventListener('click', confirmGuess);
-  document.getElementById('screen-round-result').addEventListener('click', nextRound);
   document.getElementById('btn-share').addEventListener('click', share);
 }
 

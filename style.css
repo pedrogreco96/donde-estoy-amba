@@ -213,8 +213,8 @@ html, body {
 }
 
 #map {
-  flex: 1;
-  min-height: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1;
 }
 
@@ -246,112 +246,88 @@ html, body {
 .dot.done { background: var(--accent2); border-color: var(--accent2); }
 .dot.active { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
 
-/* ─── ROUND RESULT ─── */
-#screen-round-result {
-  align-items: center;
-  justify-content: flex-start;
-  background: radial-gradient(ellipse at 50% 20%, #1a2540 0%, #0f1117 70%);
-  overflow: hidden;
-  flex-direction: column;
-}
-
-#screen-round-result .result-content {
+/* ─── MAP CONTAINER + RESULT OVERLAY ─── */
+#map-container {
   flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem 2rem 1rem;
-  width: 100%;
-  max-width: 480px;
+  position: relative;
+  min-height: 0;
 }
 
-#result-footer {
-  flex-shrink: 0;
+#map {
   width: 100%;
-  padding: 0.75rem 2rem calc(0.75rem + env(safe-area-inset-bottom));
-  background: var(--bg);
-  border-top: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  justify-content: center;
+  height: 100%;
 }
+
+#result-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  background: linear-gradient(to top, rgba(10,12,20,0.97) 60%, transparent 100%);
+  padding: 1.25rem 1.25rem calc(1rem + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  animation: fade-up 0.25s ease-out;
+}
+
+#result-overlay.hidden { display: none; }
+
+#result-overlay-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#result-overlay-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 3px solid var(--accent);
+  border-radius: 50%;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+#result-overlay-score.score-high { border-color: var(--accent2); }
+#result-overlay-score.score-mid  { border-color: var(--gold); }
+#result-overlay-score.score-low  { border-color: var(--danger); }
+
+#ro-pts {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent2);
+  line-height: 1;
+}
+.ro-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+#result-overlay-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+#ro-distance { font-size: 1rem; font-weight: 700; color: var(--text); }
+#ro-street   { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
+#ro-mult     { font-size: 0.8rem; color: var(--gold); font-weight: 600; }
 
 .tap-hint {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   text-align: center;
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-.result-content {
-  text-align: center;
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  box-sizing: border-box;
-}
-
-#result-score-circle {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 4px solid var(--accent);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-#result-score-number {
-  font-size: 1.9rem;
-  font-weight: 800;
-  color: var(--accent2);
-  line-height: 1;
-}
-
-.result-score-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-#result-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-#result-distance {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-#result-street {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-#result-multiplier-note {
-  font-size: 0.85rem;
-  color: var(--gold);
-  font-weight: 600;
-}
-
-#result-map-mini {
-  width: 100%;
-  height: 160px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.1);
-  flex-shrink: 0;
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
 }
 
 /* ─── FINAL SCREEN ─── */

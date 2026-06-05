@@ -46,7 +46,25 @@
     <div id="clue-text">Cargando...</div>
   </div>
 
-  <div id="map"></div>
+  <div id="map-container">
+    <div id="map"></div>
+
+    <!-- OVERLAY de resultado — aparece sobre el mapa después de adivinar -->
+    <div id="result-overlay" class="hidden">
+      <div id="result-overlay-inner">
+        <div id="result-overlay-score">
+          <span id="ro-pts">0</span>
+          <span class="ro-label">pts</span>
+        </div>
+        <div id="result-overlay-info">
+          <p id="ro-distance"></p>
+          <p id="ro-street"></p>
+          <p id="ro-mult"></p>
+        </div>
+      </div>
+      <p class="tap-hint">Tocá el mapa para continuar</p>
+    </div>
+  </div>
 
   <div id="game-footer">
     <div id="guess-dots">
@@ -57,27 +75,6 @@
       <span class="dot" id="dot-5"></span>
     </div>
     <button class="btn-primary" id="btn-confirm" disabled>Confirmar</button>
-  </div>
-</div>
-
-<!-- PANTALLA DE RESULTADO DE RONDA -->
-<div id="screen-round-result" class="screen">
-  <div class="result-content">
-    <div id="result-score-display">
-      <div id="result-score-circle">
-        <span id="result-score-number">0</span>
-        <span class="result-score-label">pts</span>
-      </div>
-    </div>
-    <div id="result-details">
-      <p id="result-distance"></p>
-      <p id="result-street"></p>
-      <p id="result-multiplier-note"></p>
-    </div>
-    <div id="result-map-mini"></div>
-  </div>
-  <div id="result-footer">
-    <p class="tap-hint">Tocá en cualquier lugar para continuar</p>
   </div>
 </div>
 
