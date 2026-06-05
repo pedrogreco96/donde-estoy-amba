@@ -262,32 +262,36 @@ html, body {
   position: absolute;
   inset: 0;
   z-index: 500;
-  background: rgba(10,12,20,0.55);
+  background: rgba(10,12,20,0.65);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  animation: fade-up 0.25s ease-out;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.2rem;
+  animation: fade-up 0.2s ease-out;
 }
 
 #result-overlay.hidden { display: none; }
 
+#result-overlay-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  width: 88%;
+  max-width: 380px;
+  text-align: center;
+}
+
 #btn-next-round {
   font-size: 1rem;
   padding: 0.9rem 2.5rem;
-}
-
-#result-overlay-inner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: rgba(15,17,23,0.92);
-  border-radius: var(--radius);
-  padding: 0.9rem 1.2rem;
-  width: 90%;
-  max-width: 420px;
+  width: 88%;
+  max-width: 380px;
 }
 
 #result-overlay-score {
@@ -319,10 +323,10 @@ html, body {
 }
 
 #result-overlay-info {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem;
+  align-items: center;
 }
 #ro-distance { font-size: 1rem; font-weight: 700; color: var(--text); }
 #ro-street   { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
