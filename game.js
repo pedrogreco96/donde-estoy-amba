@@ -298,9 +298,23 @@ function showFinal() {
 
 // ─── SHARE ────────────────────────────────────────────────────────────────────
 
+function scoreEmoji(raw) {
+  if (raw >= 98) return '🔥';
+  if (raw >= 90) return '🏅';
+  if (raw >= 75) return '👏';
+  if (raw >= 55) return '🎉';
+  if (raw >= 35) return '🌞';
+  if (raw >= 15) return '😬';
+  return '💀';
+}
+
 function buildShareText() {
-  const lines = [`¿Dónde estoy? AMBA`, `${todayDisplay()}: ${totalScore}/1000`, ''];
-  results.forEach((r, i) => lines.push(`${i+1}: ${formatDist(r.distKm)} | ${r.rawScore}`));
+  const lines = [
+    `¿Dónde estoy? AMBA`,
+    `${todayDisplay()}: ${totalScore}/1000`,
+    '',
+  ];
+  results.forEach((r, i) => lines.push(`${i+1}: ${formatDist(r.distKm)} | ${r.rawScore} ${scoreEmoji(r.rawScore)}`));
   return lines.join('\n');
 }
 
