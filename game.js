@@ -370,18 +370,18 @@ function boot() {
 
   dailyRounds = pickDaily(INTERSECTIONS_DB);
 
+  // Si ya jugó hoy, mostrar resultados directamente sin pasar por intro
+  const saved = loadProgress();
+  if (saved && saved.done) {
+    results      = saved.results;
+    totalScore   = saved.totalScore;
+    currentRound = 5;
+    document.getElementById('total-score').textContent = totalScore;
+    showFinal();
+    return;
+  }
+
   document.getElementById('btn-start').addEventListener('click', () => {
-    const saved = loadProgress();
-    if (saved && saved.done) {
-      results     = saved.results;
-      totalScore  = saved.totalScore;
-      currentRound = 5;
-      document.getElementById('total-score').textContent = totalScore;
-      showFinal();
-      return;
-    }
-    // Mostrar pantalla de juego ANTES de inicializar el mapa
-    // para que el div #map tenga dimensiones reales
     showScreen('screen-game');
     initMap();
     startRound(0);
