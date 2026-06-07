@@ -84,7 +84,7 @@ function pickDaily(db) {
 }
 
 const PRACTICE_MAX = 20;
-const PRACTICE_ROUND_SIZE = 5;
+const PRACTICE_ROUND_SIZE = 20;
 
 function practiceKey() {
   return `amba-practice-${today()}`;
@@ -194,9 +194,21 @@ function makePinIcon(type) {
 
 // ─── ROUND ────────────────────────────────────────────────────────────────────
 
+function buildDots() {
+  const container = document.getElementById('guess-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < totalRounds; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.id = `dot-${i + 1}`;
+    container.appendChild(dot);
+  }
+}
+
 function updateDots() {
   for (let i = 1; i <= totalRounds; i++) {
     const dot = document.getElementById(`dot-${i}`);
+    if (!dot) continue;
     dot.classList.remove('done', 'active');
     if (i - 1 < currentRound)      dot.classList.add('done');
     else if (i - 1 === currentRound) dot.classList.add('active');
@@ -225,6 +237,7 @@ function startRound(idx) {
   document.getElementById('clue-text').textContent        =
     `${round.street_label} — ${round.location_label}`;
 
+  if (idx === 0) buildDots();
   updateDots();
   showScreen('screen-game');
 

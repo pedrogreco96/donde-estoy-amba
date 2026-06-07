@@ -374,11 +374,11 @@ html, body {
   z-index: 1000;
 }
 
-#guess-dots { display: flex; gap: 8px; align-items: center; }
+#guess-dots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; max-width: 65%; }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: transparent;
   border: 2px solid var(--ink3);
