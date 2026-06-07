@@ -63,7 +63,7 @@ def get_intersections_for_zone(zone_name, bbox, max_count):
 
     # Paso 1: obtener todos los ways con nombre en el bbox
     query = f"""
-[out:json][timeout:90];
+[out:json][timeout:240];
 (
   way["highway"~"primary|secondary|tertiary|residential|unclassified|service"]
      ["name"]
@@ -73,7 +73,11 @@ out body;
 >;
 out skel qt;
 """
-    elements = overpass_query(query)
+    elements = overpass_query(query, timeout=240)
+    if not elements:
+        print(f"  Reintentando {zone_name} una vez más...")
+        time.sleep(15)
+        elements = overpass_query(query, timeout=240)
     if not elements:
         return []
 
