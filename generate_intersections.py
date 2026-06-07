@@ -50,7 +50,7 @@ ZONES = {
 
 def overpass_query(query, timeout=120):
     try:
-        r = requests.post(OVERPASS_URL, data={"data": query}, timeout=timeout + 30)
+        r = requests.post(OVERPASS_URL, data={"data": query}, headers=HEADERS, timeout=timeout + 30)
         r.raise_for_status()
         return r.json().get("elements", [])
     except Exception as e:
