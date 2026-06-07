@@ -25,7 +25,9 @@ const ROUND_CONFIG = [
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 
-let dailyRounds  = [];
+let activeRounds  = [];
+let totalRounds  = 5;
+let gameMode     = 'daily'; // 'daily' | 'practice'
 let currentRound = 0;
 let totalScore   = 0;
 let results      = [];
@@ -79,6 +81,47 @@ function pickDaily(db) {
     usedIds.add(pick.id);
     return { ...pick, mult };
   });
+}
+
+const PRACTICE_MAX = 20;
+const PRACTICE_ROUND_SIZE = 5;
+
+function practiceKey() {
+  return `amba-practice-${today()}`;
+}
+
+function getPracticeCount() {
+  try {
+    const raw = localStorage.getItem(practiceKey());
+    return raw ? (JSON.parse(raw).count || 0) : 0;
+  } catch { return 0; }
+}
+
+function addPracticeCount(n) {
+  try {
+    localStorage.setItem(practiceKey(), JSON.stringify({ count: getPracticeCount() + n }));
+  } catch(e) {}
+}
+
+function pickPractice(n) {
+  const allPool = [].concat(
+    INTERSECTIONS_DB.zones.caba,
+    INTERSECTIONS_DB.zones.cordon1,
+    INTERSECTIONS_DB.zones.cordon2,
+    INTERSECTIONS_DB.zones.cordon3
+  );
+  const usedIds = new Set();
+  const picks = [];
+  let attempts = 0;
+  while (picks.length < n && attempts < n * 20) {
+    attempts++;
+    const idx = Math.floor(Math.random() * allPool.length);
+    const cand = allPool[idx];
+    if (usedIds.has(cand.id)) continue;
+    usedIds.add(cand.id);
+    picks.push({ ...cand, mult: 1 });
+  }
+  return picks;
 }
 
 function haversineKm(lat1, lon1, lat2, lon2) {
@@ -152,7 +195,7 @@ function makePinIcon(type) {
 // ─── ROUND ────────────────────────────────────────────────────────────────────
 
 function updateDots() {
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= totalRounds; i++) {
     const dot = document.getElementById(`dot-${i}`);
     dot.classList.remove('done', 'active');
     if (i - 1 < currentRound)      dot.classList.add('done');
@@ -175,9 +218,9 @@ function startRound(idx) {
   });
   map.setView(AMBA_CENTER, AMBA_ZOOM);
 
-  const round    = dailyRounds[idx];
+  const round    = activeRounds[idx];
   const multText = round.mult > 1 ? `x${round.mult}` : '';
-  document.getElementById('round-label').textContent      = `Ronda ${idx + 1} de 5`;
+  document.getElementById('round-label').textContent      = `Ronda ${idx + 1} de ${totalRounds}`;
   document.getElementById('round-multiplier').textContent = multText;
   document.getElementById('clue-text').textContent        =
     `${round.street_label} — ${round.location_label}`;
@@ -192,7 +235,7 @@ function startRound(idx) {
 function confirmGuess() {
   if (!pendingGuess || showingResult) return;
 
-  const round  = dailyRounds[currentRound];
+  const round  = activeRounds[currentRound];
   const dist   = haversineKm(pendingGuess.lat, pendingGuess.lng, round.lat, round.lon);
   const { raw, final } = calcScore(dist, round.mult);
 
@@ -201,7 +244,8 @@ function confirmGuess() {
 
   const result = { intersection: round, guess: pendingGuess, distKm: dist, rawScore: raw, finalScore: final, mult: round.mult };
   results.push(result);
-  saveProgress();
+  if (gameMode === 'daily') saveProgress();
+  if (gameMode === 'practice') addPracticeCount(1);
 
   showRoundResult(result);
 }
@@ -235,7 +279,7 @@ function showRoundResult(result) {
 }
 
 function nextRound() {
-  if (currentRound < 4) {
+  if (currentRound < totalRounds - 1) {
     startRound(currentRound + 1);
   } else {
     showFinal();
@@ -247,6 +291,7 @@ function nextRound() {
 function showFinal() {
   document.getElementById('final-date-display').textContent  = todayDisplay();
   document.getElementById('final-score-number').textContent  = totalScore;
+  document.getElementById('final-score-max').textContent     = `/${totalRounds * 100}`;
 
   const list = document.getElementById('final-rounds-list');
   list.innerHTML = '';
@@ -269,7 +314,24 @@ function showFinal() {
     list.appendChild(row);
   });
 
-  saveProgress(true);
+  const shareBtn = document.getElementById('btn-share');
+  const backBtn  = document.getElementById('btn-back-menu');
+  const note     = document.getElementById('final-note');
+
+  if (gameMode === 'practice') {
+    shareBtn.classList.add('hidden');
+    backBtn.classList.remove('hidden');
+    const remaining = Math.max(0, PRACTICE_MAX - getPracticeCount());
+    note.textContent = remaining > 0
+      ? `Te quedan ${remaining} cruces de práctica hoy.`
+      : `Llegaste al límite de práctica de hoy. ¡Volvé mañana!`;
+  } else {
+    shareBtn.classList.remove('hidden');
+    backBtn.classList.add('hidden');
+    note.textContent = 'Volvé mañana para cinco nuevos cruces.';
+    saveProgress(true);
+  }
+
   showScreen('screen-final');
 }
 
@@ -342,30 +404,78 @@ function loadProgress() {
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 
+function resetGameState() {
+  currentRound = 0;
+  totalScore   = 0;
+  results      = [];
+  document.getElementById('total-score').textContent = '0';
+}
+
+function startDaily() {
+  gameMode     = 'daily';
+  totalRounds  = 5;
+  document.getElementById('score-max').textContent = '/1000';
+  resetGameState();
+  activeRounds = pickDaily(INTERSECTIONS_DB);
+  showScreen('screen-game');
+  initMap();
+  startRound(0);
+}
+
+function startPractice() {
+  const remaining = PRACTICE_MAX - getPracticeCount();
+  if (remaining <= 0) return;
+
+  gameMode    = 'practice';
+  totalRounds = Math.min(PRACTICE_ROUND_SIZE, remaining);
+  document.getElementById('score-max').textContent = `/${totalRounds * 100}`;
+  resetGameState();
+  activeRounds = pickPractice(totalRounds);
+  showScreen('screen-game');
+  initMap();
+  startRound(0);
+}
+
+function updatePracticeButton() {
+  const remaining = Math.max(0, PRACTICE_MAX - getPracticeCount());
+  const btn = document.getElementById('btn-practice');
+  const note = document.getElementById('practice-date');
+  if (remaining <= 0) {
+    btn.disabled = true;
+    note.textContent = 'Práctica: completaste el límite de hoy (volvé mañana)';
+  } else {
+    btn.disabled = false;
+    note.textContent = `Práctica: cruces aleatorios de todo el AMBA (te quedan ${remaining} hoy)`;
+  }
+}
+
 function boot() {
   document.getElementById('intro-date').textContent = `Cruces del ${todayDisplay()}`;
+  updatePracticeButton();
 
-  dailyRounds = pickDaily(INTERSECTIONS_DB);
-
-  // Si ya jugó hoy, mostrar resultados directamente sin pasar por intro
+  // Si ya jugó el modo diario hoy, mostrar resultados directamente sin pasar por intro
   const saved = loadProgress();
   if (saved && saved.done) {
+    gameMode     = 'daily';
+    totalRounds  = 5;
     results      = saved.results;
     totalScore   = saved.totalScore;
     currentRound = 5;
     document.getElementById('total-score').textContent = totalScore;
+    document.getElementById('score-max').textContent = '/1000';
     showFinal();
     return;
   }
 
-  document.getElementById('btn-start').addEventListener('click', () => {
-    showScreen('screen-game');
-    initMap();
-    startRound(0);
-  });
+  document.getElementById('btn-start').addEventListener('click', startDaily);
+  document.getElementById('btn-practice').addEventListener('click', startPractice);
 
   document.getElementById('btn-next-round').addEventListener('click', nextRound);
   document.getElementById('btn-share').addEventListener('click', share);
+  document.getElementById('btn-back-menu').addEventListener('click', () => {
+    updatePracticeButton();
+    showScreen('screen-intro');
+  });
 }
 
 document.addEventListener('DOMContentLoaded', boot);

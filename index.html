@@ -23,8 +23,12 @@
       <div class="rule-item"><span class="round-badge r3">3</span> Primer cordón — puntos x2</div>
       <div class="rule-item"><span class="round-badge r4">4</span><span class="round-badge r5">5</span> Más lejos — puntos x3</div>
     </div>
-    <button class="btn-primary" id="btn-start">Jugar</button>
+    <div class="mode-buttons">
+      <button class="btn-primary" id="btn-start">Jugar diario</button>
+      <button class="btn-secondary" id="btn-practice">Zona de práctica</button>
+    </div>
     <p class="intro-date" id="intro-date"></p>
+    <p class="intro-date" id="practice-date"></p>
   </div>
 </div>
 
@@ -37,7 +41,7 @@
     </div>
     <div id="score-display">
       <span id="total-score">0</span>
-      <span class="score-max">/1000</span>
+      <span class="score-max" id="score-max">/1000</span>
     </div>
   </div>
 
@@ -85,14 +89,15 @@
     <div id="final-date-display"></div>
     <div id="final-total-score">
       <span id="final-score-number">0</span>
-      <span>/1000</span>
+      <span id="final-score-max">/1000</span>
     </div>
     <div id="final-rounds-list"></div>
     <div id="final-buttons">
       <button class="btn-primary" id="btn-share">Compartir resultado</button>
+      <button class="btn-secondary hidden" id="btn-back-menu">Volver al menú</button>
       <div id="share-copied" class="share-copied hidden">¡Copiado!</div>
     </div>
-    <p class="final-note">Volvé mañana para cinco nuevos cruces.</p>
+    <p class="final-note" id="final-note">Volvé mañana para cinco nuevos cruces.</p>
   </div>
 </div>
 

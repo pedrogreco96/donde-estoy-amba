@@ -171,6 +171,34 @@ html, body {
 .btn-primary:active:not(:disabled) { transform: translateY(0); }
 .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
 
+.mode-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 0.7rem 2.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--serif);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--bg);
+  transform: translateY(-1px);
+}
+.btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
+
 /* ─── GAME SCREEN ─── */
 #screen-game {
   flex-direction: column;
@@ -264,6 +292,7 @@ html, body {
   animation: fade-in 0.2s ease-out;
 }
 
+.hidden { display: none !important; }
 #result-overlay.hidden { display: none; }
 
 #result-overlay-inner {

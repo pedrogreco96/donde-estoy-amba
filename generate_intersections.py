@@ -32,19 +32,19 @@ HEADERS = {"User-Agent": "AMBAGame/1.0 (educational project)"}
 ZONES = {
     "caba": {
         "bbox": (-34.706, -58.532, -34.527, -58.334),
-        "max_intersections": 400,
+        "max_intersections": 2500,
     },
     "cordon1": {
         "bbox": (-34.920, -58.820, -34.470, -58.210),
-        "max_intersections": 400,
+        "max_intersections": 2500,
     },
     "cordon2": {
         "bbox": (-35.100, -59.100, -34.300, -58.100),
-        "max_intersections": 350,
+        "max_intersections": 2000,
     },
     "cordon3": {
         "bbox": (-35.400, -59.500, -33.900, -57.500),
-        "max_intersections": 300,
+        "max_intersections": 1500,
     },
 }
 
@@ -110,24 +110,22 @@ out skel qt;
 
     print(f"  → {len(intersection_nodes)} cruces encontrados")
 
-    # Paso 3: samplear y geocodificar
+    # Paso 3: muestrear hasta max_count cruces
     random.shuffle(intersection_nodes)
-    sample = intersection_nodes[:min(max_count * 3, len(intersection_nodes))]
+    sample = intersection_nodes[:min(max_count, len(intersection_nodes))]
 
-    results = []
-    print(f"  Geocodificando {len(sample)} nodos (puede tardar)...")
+    # Paso 4: geocodificar por CELDA de grilla (no por cruce) para no
+    # quemar 1 req/seg de Nominatim con miles de nodos. Cada celda de
+    # ~600m comparte el mismo barrio/partido en la práctica.
+    CELL = 0.006  # ~600m
+    geocode_cache = {}
 
-    for i, node in enumerate(sample):
-        if len(results) >= max_count:
-            break
+    def geocode_cell(lat, lon):
+        key = (round(lat / CELL), round(lon / CELL))
+        if key in geocode_cache:
+            return geocode_cache[key]
 
-        if i > 0 and i % 50 == 0:
-            print(f"    {i}/{len(sample)}, {len(results)} válidos...")
-
-        lat, lon = node["lat"], node["lon"]
-        streets = node["streets"]
-
-        # Reverse geocode
+        location_label = None
         try:
             r = requests.get(
                 NOMINATIM_URL,
@@ -136,9 +134,9 @@ out skel qt;
                 timeout=10
             )
             r.raise_for_status()
-            addr = r.json().get("address", {})
-
-            display = r.json().get("display_name", "")
+            data = r.json()
+            addr = data.get("address", {})
+            display = data.get("display_name", "")
             is_caba = ("Ciudad Autónoma de Buenos Aires" in display or
                        "Autonomous City of Buenos Aires" in display)
 
@@ -152,42 +150,55 @@ out skel qt;
                 partido = addr.get("county") or addr.get("state_district") or ""
                 partido = partido.replace(" Partido", "").strip()
 
-            # Verificar que estamos en el AMBA (provincia o CABA)
             state = addr.get("state", "")
             if not is_caba and "Buenos Aires" not in state:
-                time.sleep(1.1)
-                continue
-
-            if not partido:
-                time.sleep(1.1)
-                continue
-
-            if partido == "CABA":
+                location_label = None
+            elif not partido:
+                location_label = None
+            elif partido == "CABA":
                 location_label = f"{localidad}, CABA"
             elif localidad and localidad.lower() != partido.lower():
                 location_label = f"{localidad}, {partido}"
             else:
                 location_label = partido
 
-            street_label = f"{streets[0]} y {streets[1]}"
+        except Exception:
+            location_label = None
 
-            results.append({
-                "id": node["id"],
-                "lat": lat,
-                "lon": lon,
-                "streets": streets,
-                "label": f"{street_label}, {location_label}",
-                "street_label": street_label,
-                "location_label": location_label,
-                "zone": zone_name
-            })
-
-        except Exception as e:
-            pass
-
+        geocode_cache[key] = location_label
         time.sleep(1.1)  # Nominatim: 1 req/s máximo
+        return location_label
 
-    print(f"  ✓ {len(results)} cruces válidos en {zone_name}")
+    results = []
+    print(f"  Geocodificando {len(sample)} cruces por celdas (puede tardar)...")
+
+    for i, node in enumerate(sample):
+        if i > 0 and i % 200 == 0:
+            print(f"    {i}/{len(sample)}, {len(results)} válidos, "
+                  f"{len(geocode_cache)} celdas geocodificadas...")
+
+        lat, lon = node["lat"], node["lon"]
+        streets = node["streets"]
+
+        location_label = geocode_cell(lat, lon)
+        if not location_label:
+            continue
+
+        street_label = f"{streets[0]} y {streets[1]}"
+
+        results.append({
+            "id": node["id"],
+            "lat": lat,
+            "lon": lon,
+            "streets": streets,
+            "label": f"{street_label}, {location_label}",
+            "street_label": street_label,
+            "location_label": location_label,
+            "zone": zone_name
+        })
+
+    print(f"  ✓ {len(results)} cruces válidos en {zone_name} "
+          f"({len(geocode_cache)} llamadas a Nominatim)")
     return results
 
 def main():
