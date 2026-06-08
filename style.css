@@ -501,6 +501,19 @@ html, body {
 }
 .frow-dist { font-size: 0.72rem; color: var(--ink3); }
 
+#final-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+#final-buttons .btn-primary,
+#final-buttons .btn-secondary {
+  width: 100%;
+  max-width: 320px;
+}
+
 .share-copied {
   font-size: 0.85rem;
   color: var(--red);

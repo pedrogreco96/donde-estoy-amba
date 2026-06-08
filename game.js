@@ -340,7 +340,7 @@ function showFinal() {
       : `Llegaste al límite de práctica de hoy. ¡Volvé mañana!`;
   } else {
     shareBtn.classList.remove('hidden');
-    backBtn.classList.add('hidden');
+    backBtn.classList.remove('hidden');
     note.textContent = 'Volvé mañana para cinco nuevos cruces.';
     saveProgress(true);
   }
@@ -466,6 +466,16 @@ function boot() {
   document.getElementById('intro-date').textContent = `Cruces del ${todayDisplay()}`;
   updatePracticeButton();
 
+  document.getElementById('btn-start').addEventListener('click', startDaily);
+  document.getElementById('btn-practice').addEventListener('click', startPractice);
+
+  document.getElementById('btn-next-round').addEventListener('click', nextRound);
+  document.getElementById('btn-share').addEventListener('click', share);
+  document.getElementById('btn-back-menu').addEventListener('click', () => {
+    updatePracticeButton();
+    showScreen('screen-intro');
+  });
+
   // Si ya jugó el modo diario hoy, mostrar resultados directamente sin pasar por intro
   const saved = loadProgress();
   if (saved && saved.done) {
@@ -477,18 +487,7 @@ function boot() {
     document.getElementById('total-score').textContent = totalScore;
     document.getElementById('score-max').textContent = '/1000';
     showFinal();
-    return;
   }
-
-  document.getElementById('btn-start').addEventListener('click', startDaily);
-  document.getElementById('btn-practice').addEventListener('click', startPractice);
-
-  document.getElementById('btn-next-round').addEventListener('click', nextRound);
-  document.getElementById('btn-share').addEventListener('click', share);
-  document.getElementById('btn-back-menu').addEventListener('click', () => {
-    updatePracticeButton();
-    showScreen('screen-intro');
-  });
 }
 
 document.addEventListener('DOMContentLoaded', boot);
