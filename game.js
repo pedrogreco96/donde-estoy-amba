@@ -360,14 +360,22 @@ function scoreEmoji(raw) {
   return '💀';
 }
 
+const MONTH_NAMES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function todayLongDisplay() {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2,'0')} de ${MONTH_NAMES[d.getMonth()]}, ${d.getFullYear()}`;
+}
+
 function buildShareText() {
-  const lines = [
-    `¿Dónde estoy? AMBA`,
-    `${todayDisplay()}: ${totalScore}/1000`,
-    '',
-  ];
-  results.forEach((r, i) => lines.push(`${i+1}: ${formatDist(r.distKm)} | ${r.rawScore} ${scoreEmoji(r.rawScore)}`));
-  return lines.join('\n');
+  const scores = results
+    .map(r => `${r.rawScore} ${scoreEmoji(r.rawScore)} (${formatDist(r.distKm)})`)
+    .join(' | ');
+  return [
+    `📍 ¿Dónde estoy? AMBA`,
+    `🗓️ ${todayLongDisplay()}: *${totalScore}/${totalRounds * 100}*`,
+    scores,
+  ].join('\n');
 }
 
 function share() {
