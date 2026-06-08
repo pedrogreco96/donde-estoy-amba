@@ -372,7 +372,7 @@ function buildShareText() {
     .map(r => `${r.rawScore} ${scoreEmoji(r.rawScore)} (${formatDist(r.distKm)})`)
     .join(' | ');
   return [
-    `📍 ¿Dónde estoy? AMBA`,
+    `📍 ¿Dónde estoy? AMBA${gameMode !== 'amba' && gameMode !== 'practice' ? ` — ${MODE_LABELS[gameMode]}` : ''}`,
     `🗓️ ${todayLongDisplay()}: *${totalScore}/${totalRounds * 100}*`,
     scores,
   ].join('\n');
@@ -410,18 +410,46 @@ function fallbackCopy(text, cb) {
 
 function saveProgress(done = false) {
   try {
-    localStorage.setItem(`amba-game-${today()}`, JSON.stringify({
+    localStorage.setItem(`amba-game-${gameMode}-${today()}`, JSON.stringify({
       results, totalScore, currentRound, done
     }));
   } catch(e) {}
 }
 
-function loadProgress() {
+function loadDailyProgress(modeKey) {
   try {
-    const raw = localStorage.getItem(`amba-game-${today()}`);
+    const raw = localStorage.getItem(`amba-game-${modeKey}-${today()}`);
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 }
+
+// ─── DAILY MODES ─────────────────────────────────────────────────────────────
+
+function pickZoneDaily(modeKey, zoneNames) {
+  const seed  = dateSeed(`${today()}-${modeKey}`);
+  const rand  = seededRng(seed);
+  const pool  = [].concat(...zoneNames.map(z => INTERSECTIONS_DB.zones[z]));
+  const usedIds = new Set();
+  const picks = [];
+  let attempts = 0;
+  while (picks.length < 5 && attempts < pool.length * 10) {
+    attempts++;
+    const idx  = Math.floor(rand() * pool.length);
+    const cand = pool[idx];
+    if (usedIds.has(cand.id)) continue;
+    usedIds.add(cand.id);
+    picks.push({ ...cand, mult: 1 });
+  }
+  return picks;
+}
+
+const DAILY_MODES = {
+  amba: { maxScore: 1000, pick: () => pickDaily(INTERSECTIONS_DB) },
+  caba: { maxScore: 500,  pick: () => pickZoneDaily('caba', ['caba']) },
+  gba:  { maxScore: 500,  pick: () => pickZoneDaily('gba',  ['cordon1', 'cordon2', 'cordon3']) },
+};
+
+const MODE_LABELS = { amba: 'AMBA', caba: 'CABA', gba: 'GBA', practice: 'Práctica' };
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 
@@ -432,12 +460,24 @@ function resetGameState() {
   document.getElementById('total-score').textContent = '0';
 }
 
-function startDaily() {
-  gameMode     = 'daily';
-  totalRounds  = 5;
-  document.getElementById('score-max').textContent = '/1000';
+function startDailyMode(modeKey) {
+  const cfg = DAILY_MODES[modeKey];
+  gameMode    = modeKey;
+  totalRounds = 5;
+  document.getElementById('score-max').textContent = `/${cfg.maxScore}`;
+
+  const saved = loadDailyProgress(modeKey);
+  if (saved && saved.done) {
+    results      = saved.results;
+    totalScore   = saved.totalScore;
+    currentRound = 5;
+    document.getElementById('total-score').textContent = totalScore;
+    showFinal();
+    return;
+  }
+
   resetGameState();
-  activeRounds = pickDaily(INTERSECTIONS_DB);
+  activeRounds = cfg.pick();
   showScreen('screen-game');
   initMap();
   startRound(0);
@@ -474,7 +514,9 @@ function boot() {
   document.getElementById('intro-date').textContent = `Cruces del ${todayDisplay()}`;
   updatePracticeButton();
 
-  document.getElementById('btn-start').addEventListener('click', startDaily);
+  document.getElementById('btn-start').addEventListener('click', () => startDailyMode('amba'));
+  document.getElementById('btn-start-caba').addEventListener('click', () => startDailyMode('caba'));
+  document.getElementById('btn-start-gba').addEventListener('click', () => startDailyMode('gba'));
   document.getElementById('btn-practice').addEventListener('click', startPractice);
 
   document.getElementById('btn-next-round').addEventListener('click', nextRound);
@@ -483,19 +525,6 @@ function boot() {
     updatePracticeButton();
     showScreen('screen-intro');
   });
-
-  // Si ya jugó el modo diario hoy, mostrar resultados directamente sin pasar por intro
-  const saved = loadProgress();
-  if (saved && saved.done) {
-    gameMode     = 'daily';
-    totalRounds  = 5;
-    results      = saved.results;
-    totalScore   = saved.totalScore;
-    currentRound = 5;
-    document.getElementById('total-score').textContent = totalScore;
-    document.getElementById('score-max').textContent = '/1000';
-    showFinal();
-  }
 }
 
 document.addEventListener('DOMContentLoaded', boot);

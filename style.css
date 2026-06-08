@@ -176,7 +176,30 @@ html, body {
   flex-direction: column;
   gap: 0.6rem;
   align-items: center;
+  width: 100%;
 }
+
+.btn-hero {
+  font-size: 1rem;
+  padding: 1.1rem 3rem;
+  letter-spacing: 3px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.mode-row {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 360px;
+}
+.mode-row .btn-secondary {
+  flex: 1;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.mode-buttons > .btn-secondary { width: 100%; max-width: 360px; }
 
 .btn-secondary {
   background: transparent;
