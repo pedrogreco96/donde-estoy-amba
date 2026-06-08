@@ -304,7 +304,7 @@ function nextRound() {
 function showFinal() {
   document.getElementById('final-date-display').textContent  = todayDisplay();
   document.getElementById('final-score-number').textContent  = totalScore;
-  document.getElementById('final-score-max').textContent     = `/${totalRounds * 100}`;
+  document.getElementById('final-score-max').textContent     = `/${currentMaxScore()}`;
 
   const list = document.getElementById('final-rounds-list');
   list.innerHTML = '';
@@ -373,7 +373,7 @@ function buildShareText() {
     .join(' | ');
   return [
     `📍 ¿Dónde estoy? AMBA${gameMode !== 'amba' && gameMode !== 'practice' ? ` — ${MODE_LABELS[gameMode]}` : ''}`,
-    `🗓️ ${todayLongDisplay()}: *${totalScore}/${totalRounds * 100}*`,
+    `🗓️ ${todayLongDisplay()}: *${totalScore}/${currentMaxScore()}*`,
     scores,
   ].join('\n');
 }
@@ -450,6 +450,11 @@ const DAILY_MODES = {
 };
 
 const MODE_LABELS = { amba: 'AMBA', caba: 'CABA', gba: 'GBA', practice: 'Práctica' };
+
+function currentMaxScore() {
+  if (gameMode === 'practice') return totalRounds * 100;
+  return DAILY_MODES[gameMode] ? DAILY_MODES[gameMode].maxScore : totalRounds * 100;
+}
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 
