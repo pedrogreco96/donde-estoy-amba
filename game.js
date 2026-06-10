@@ -169,7 +169,8 @@ function initMap() {
     {
       attribution: 'Tiles © Esri',
       maxZoom: 19,
-      updateWhenIdle: false,
+      tileSize: 512,
+      zoomOffset: -1,
       keepBuffer: 4,
     }
   ).addTo(map);
