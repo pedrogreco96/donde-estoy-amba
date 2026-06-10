@@ -332,38 +332,25 @@ html, body {
 /* ─── RESULT OVERLAY ─── */
 #result-overlay {
   position: absolute;
-  inset: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   z-index: 500;
   pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding-bottom: 1.25rem;
-  background: rgba(26,18,8,0.28);
   animation: fade-in 0.2s ease-out;
 }
-#result-overlay-inner,
-#btn-next-round {
-  pointer-events: all;
-}
-
-.hidden { display: none !important; }
 #result-overlay.hidden { display: none; }
 
-#result-overlay-inner {
+#result-bar {
+  pointer-events: all;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   background: var(--bg);
-  border: 1px solid var(--line);
-  border-top: 4px solid var(--ink);
-  padding: 0.75rem 1rem;
-  width: 92%;
-  max-width: 420px;
-  text-align: left;
+  border-top: 3px solid var(--ink);
+  padding: 0.6rem 0.75rem;
+  width: 100%;
 }
 
 #result-overlay-score {
@@ -371,9 +358,9 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 3px solid var(--ink);
-  width: 54px;
-  height: 54px;
+  border: 2px solid var(--ink);
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
 }
 #result-overlay-score.score-high { border-color: var(--red); }
@@ -382,45 +369,61 @@ html, body {
 
 #ro-pts {
   font-family: var(--serif);
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 900;
   color: var(--ink);
   line-height: 1;
 }
 .ro-label {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   color: var(--ink3);
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
-#result-overlay-info { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; min-width: 0; }
+#result-overlay-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
 #ro-distance {
   font-family: var(--serif);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--ink);
 }
 #ro-street {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--ink2);
-  line-height: 1.3;
   font-style: italic;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 #ro-mult {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--red);
   font-weight: 600;
 }
 
-#btn-next-round {
-  width: 88%;
-  max-width: 420px;
+.btn-next-inline {
+  flex-shrink: 0;
+  background: var(--ink);
+  color: var(--bg);
+  border: none;
+  width: 46px;
+  height: 46px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
 }
+.btn-next-inline:hover { background: var(--red); }
 
 /* ─── FOOTER ─── */
 #game-footer {
