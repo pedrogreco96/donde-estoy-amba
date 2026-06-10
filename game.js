@@ -533,12 +533,9 @@ function updatePracticeButton() {
 
 function boot() {
   document.getElementById('intro-date').textContent = `Cruces del ${todayDisplay()}`;
-  updatePracticeButton();
-
   document.getElementById('btn-start').addEventListener('click', () => startDailyMode('amba'));
   document.getElementById('btn-start-caba').addEventListener('click', () => startDailyMode('caba'));
   document.getElementById('btn-start-gba').addEventListener('click', () => startDailyMode('gba'));
-  document.getElementById('btn-practice').addEventListener('click', startPractice);
 
   document.getElementById('btn-confirm').addEventListener('click', () => {
     hideConfirmOverlay();
@@ -553,7 +550,6 @@ function boot() {
   document.getElementById('btn-next-round').addEventListener('click', nextRound);
   document.getElementById('btn-share').addEventListener('click', share);
   document.getElementById('btn-back-menu').addEventListener('click', () => {
-    updatePracticeButton();
     showScreen('screen-intro');
   });
 }
