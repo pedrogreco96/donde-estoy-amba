@@ -166,7 +166,12 @@ function initMap() {
 
   L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    { attribution: 'Tiles © Esri', maxZoom: 19 }
+    {
+      attribution: 'Tiles © Esri',
+      maxZoom: 19,
+      updateWhenIdle: false,
+      keepBuffer: 4,
+    }
   ).addTo(map);
 
   map.on('click', onMapClick);
