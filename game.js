@@ -518,18 +518,6 @@ function startPractice() {
   startRound(0);
 }
 
-function updatePracticeButton() {
-  const remaining = Math.max(0, PRACTICE_MAX - getPracticeCount());
-  const btn = document.getElementById('btn-practice');
-  const note = document.getElementById('practice-date');
-  if (remaining <= 0) {
-    btn.disabled = true;
-    note.textContent = 'Práctica: completaste el límite de hoy (volvé mañana)';
-  } else {
-    btn.disabled = false;
-    note.textContent = `Práctica: cruces aleatorios de todo el AMBA (te quedan ${remaining} hoy)`;
-  }
-}
 
 function boot() {
   document.getElementById('intro-date').textContent = `Cruces del ${todayDisplay()}`;
