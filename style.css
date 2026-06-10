@@ -533,8 +533,15 @@ html, body {
 }
 .leaflet-container img.leaflet-tile {
   image-rendering: auto;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+}
+.leaflet-tile-pane img {
+  margin: -1px !important;
+  width: calc(100% + 2px) !important;
+  height: calc(100% + 2px) !important;
 }
 .leaflet-control-attribution {
   background: rgba(0,0,0,0.45) !important;
