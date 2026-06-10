@@ -477,42 +477,47 @@ function currentMaxScore() {
   return DAILY_MODES[gameMode] ? DAILY_MODES[gameMode].maxScore : totalRounds * 100;
 }
 
-// ─── RANKING ──────────────────────────────────────────────────────────────────
+// ─── RANKING (Supabase) ───────────────────────────────────────────────────────
 
-function getRanking(mode) {
-  try {
-    const raw = localStorage.getItem(`amba-ranking-${mode}`);
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+const SB_URL = 'https://eysevickmevsbbxpvyxm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5c2V2aWNrbWV2c2JieHB2eXhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwOTU3MjYsImV4cCI6MjA5NjY3MTcyNn0.pCTs5juJsu-q8y3gFQSgjjQHZ9Up3-gneKYNLTxcl2Q';
+
+async function fetchRanking(mode) {
+  const res = await fetch(
+    `${SB_URL}/rest/v1/ranking?mode=eq.${mode}&order=score.desc&limit=20`,
+    { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
+  );
+  if (!res.ok) return [];
+  return res.json();
 }
 
-function saveToRanking(mode, name, score) {
-  try {
-    const ranking = getRanking(mode);
-    const d = new Date();
-    const date = `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
-    ranking.push({ name: name.trim(), score, date });
-    ranking.sort((a, b) => b.score - a.score);
-    ranking.splice(20);
-    localStorage.setItem(`amba-ranking-${mode}`, JSON.stringify(ranking));
-    return ranking;
-  } catch { return []; }
+async function insertRanking(mode, name, score) {
+  const d = new Date();
+  const date = `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+  await fetch(`${SB_URL}/rest/v1/ranking`, {
+    method: 'POST',
+    headers: {
+      apikey: SB_KEY,
+      Authorization: `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify({ mode, name: name.trim(), score, date }),
+  });
 }
 
-let rankingActiveMode = 'amba';
+let rankingMyScore = undefined;
 
-function renderRanking(mode, myScore) {
-  rankingActiveMode = mode;
+function renderRankingRows(entries, myScore, mode) {
   document.querySelectorAll('.ranking-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === mode);
   });
-  const ranking = getRanking(mode);
   const list = document.getElementById('ranking-list');
-  if (ranking.length === 0) {
+  if (!entries.length) {
     list.innerHTML = '<p class="ranking-empty">Todavía no hay puntajes. ¡Sé el primero!</p>';
     return;
   }
-  list.innerHTML = ranking.map((entry, i) => {
+  list.innerHTML = entries.map((entry, i) => {
     const isMe = myScore !== undefined && entry.score === myScore && mode === gameMode;
     return `<div class="lb-row${isMe ? ' lb-me' : ''}">
       <span class="lb-pos">${i + 1}</span>
@@ -522,10 +527,21 @@ function renderRanking(mode, myScore) {
   }).join('');
 }
 
+async function loadAndRenderRanking(mode) {
+  document.querySelectorAll('.ranking-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  const list = document.getElementById('ranking-list');
+  list.innerHTML = '<p class="ranking-empty">Cargando...</p>';
+  const entries = await fetchRanking(mode);
+  renderRankingRows(entries, rankingMyScore, mode);
+}
+
 function showRankingSection(myScore) {
+  rankingMyScore = myScore;
   const section = document.getElementById('ranking-section');
   section.classList.remove('hidden');
-  renderRanking(gameMode, myScore);
+  loadAndRenderRanking(gameMode);
 
   const saveRow = document.getElementById('ranking-save-row');
   if (['amba','caba','gba'].includes(gameMode)) {
@@ -606,16 +622,19 @@ function boot() {
   });
 
   document.querySelectorAll('.ranking-tab').forEach(btn => {
-    btn.addEventListener('click', () => renderRanking(btn.dataset.mode, totalScore));
+    btn.addEventListener('click', () => loadAndRenderRanking(btn.dataset.mode));
   });
 
-  document.getElementById('btn-save-ranking').addEventListener('click', () => {
+  document.getElementById('btn-save-ranking').addEventListener('click', async () => {
     const input = document.getElementById('ranking-name-input');
     const name = input.value.trim();
     if (!name) return;
-    saveToRanking(gameMode, name, totalScore);
+    const btn = document.getElementById('btn-save-ranking');
+    btn.disabled = true;
+    btn.textContent = '...';
+    await insertRanking(gameMode, name, totalScore);
     document.getElementById('ranking-save-row').classList.add('hidden');
-    renderRanking(gameMode, totalScore);
+    await loadAndRenderRanking(gameMode);
   });
 }
 
