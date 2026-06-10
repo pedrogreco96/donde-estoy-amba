@@ -539,12 +539,7 @@ html, body {
   outline: none !important;
 }
 .leaflet-tile-pane {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-}
-.leaflet-tile-pane img {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  opacity: 0.999;
 }
 .leaflet-control-attribution {
   background: rgba(0,0,0,0.45) !important;
