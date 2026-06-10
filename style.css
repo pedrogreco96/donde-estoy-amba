@@ -179,6 +179,23 @@ html, body {
   color: var(--ink3);
 }
 
+.intro-rules-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.intro-rules-text p {
+  font-size: 12px;
+  color: var(--ink2);
+  line-height: 1.6;
+}
+.intro-rules-text strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 /* ─── GAME SCREEN ─── */
 #screen-game {
   height: 100vh;
