@@ -527,6 +527,15 @@ html, body {
 
 /* ─── LEAFLET ─── */
 .leaflet-container { background: #1a1a2e; }
+.leaflet-tile {
+  border: none !important;
+  outline: none !important;
+}
+.leaflet-container img.leaflet-tile {
+  image-rendering: auto;
+  margin: 0;
+  padding: 0;
+}
 .leaflet-control-attribution {
   background: rgba(0,0,0,0.45) !important;
   color: rgba(255,255,255,0.4) !important;
