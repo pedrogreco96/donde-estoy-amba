@@ -57,6 +57,12 @@
   <div id="map-container">
     <div id="map"></div>
 
+    <!-- BOTÓN de confirmar arriesgada — aparece tras el primer toque -->
+    <div id="confirm-overlay" class="hidden">
+      <button class="btn-primary" id="btn-confirm">Confirmar</button>
+      <button class="btn-cancel" id="btn-cancel-guess">✕</button>
+    </div>
+
     <!-- OVERLAY de resultado — aparece sobre el mapa después de adivinar -->
     <div id="result-overlay" class="hidden">
       <div id="result-overlay-inner">
@@ -82,7 +88,7 @@
       <span class="dot" id="dot-4"></span>
       <span class="dot" id="dot-5"></span>
     </div>
-    <p class="map-hint">Tocá el mapa para adivinar</p>
+    <p class="map-hint">Tocá el mapa para marcar, luego confirmá</p>
   </div>
 </div>
 

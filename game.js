@@ -174,13 +174,19 @@ function initMap() {
 
 let showingResult = false;
 
+function showConfirmOverlay() {
+  document.getElementById('confirm-overlay').classList.remove('hidden');
+}
+function hideConfirmOverlay() {
+  document.getElementById('confirm-overlay').classList.add('hidden');
+}
+
 function onMapClick(e) {
-  if (showingResult) return;  // ignorar taps mientras se muestra resultado
+  if (showingResult) return;
   if (guessMarker) map.removeLayer(guessMarker);
   pendingGuess = e.latlng;
   guessMarker  = L.marker(e.latlng, { icon: makePinIcon('guess') }).addTo(map);
-  // Confirmar automáticamente
-  confirmGuess();
+  showConfirmOverlay();
 }
 
 function makePinIcon(type) {
@@ -221,8 +227,9 @@ function startRound(idx) {
   guessMarker   = null;
   showingResult = false;
 
-  // Ocultar overlay
+  // Ocultar overlays
   document.getElementById('result-overlay').classList.add('hidden');
+  hideConfirmOverlay();
 
   // Limpiar marcadores del mapa
   map.eachLayer(layer => {
@@ -523,6 +530,16 @@ function boot() {
   document.getElementById('btn-start-caba').addEventListener('click', () => startDailyMode('caba'));
   document.getElementById('btn-start-gba').addEventListener('click', () => startDailyMode('gba'));
   document.getElementById('btn-practice').addEventListener('click', startPractice);
+
+  document.getElementById('btn-confirm').addEventListener('click', () => {
+    hideConfirmOverlay();
+    confirmGuess();
+  });
+  document.getElementById('btn-cancel-guess').addEventListener('click', () => {
+    hideConfirmOverlay();
+    if (guessMarker) { map.removeLayer(guessMarker); guessMarker = null; }
+    pendingGuess = null;
+  });
 
   document.getElementById('btn-next-round').addEventListener('click', nextRound);
   document.getElementById('btn-share').addEventListener('click', share);

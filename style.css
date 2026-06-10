@@ -299,12 +299,42 @@ html, body {
 
 #map { width: 100%; height: 100%; z-index: 1; }
 
+/* ─── CONFIRM OVERLAY ─── */
+#confirm-overlay {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fade-in 0.15s ease-out;
+}
+#confirm-overlay .btn-primary {
+  padding: 0.9rem 2.5rem;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+.btn-cancel {
+  background: rgba(26,18,8,0.6);
+  color: var(--bg);
+  border: none;
+  border-radius: 0;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+
 /* ─── RESULT OVERLAY ─── */
 #result-overlay {
   position: absolute;
   inset: 0;
   z-index: 500;
-  background: rgba(26,18,8,0.6);
+  pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -313,6 +343,10 @@ html, body {
   padding-bottom: 1.25rem;
   background: rgba(26,18,8,0.28);
   animation: fade-in 0.2s ease-out;
+}
+#result-overlay-inner,
+#btn-next-round {
+  pointer-events: all;
 }
 
 .hidden { display: none !important; }
