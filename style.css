@@ -347,8 +347,8 @@ html, body {
   flex-direction: row;
   align-items: center;
   gap: 0.6rem;
-  background: var(--bg);
-  border-top: 3px solid var(--ink);
+  background: var(--ink);
+  border-top: 3px solid var(--gold);
   padding: 0.6rem 0.75rem;
   width: 100%;
 }
@@ -358,25 +358,25 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--ink);
+  border: 2px solid var(--gold);
   width: 46px;
   height: 46px;
   flex-shrink: 0;
 }
-#result-overlay-score.score-high { border-color: var(--red); }
-#result-overlay-score.score-mid  { border-color: var(--gold); }
+#result-overlay-score.score-high { border-color: var(--gold); }
+#result-overlay-score.score-mid  { border-color: var(--line); }
 #result-overlay-score.score-low  { border-color: var(--ink3); }
 
 #ro-pts {
   font-family: var(--serif);
   font-size: 1.1rem;
   font-weight: 900;
-  color: var(--ink);
+  color: var(--bg);
   line-height: 1;
 }
 .ro-label {
   font-size: 0.5rem;
-  color: var(--ink3);
+  color: var(--line);
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -393,11 +393,11 @@ html, body {
   font-family: var(--serif);
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--ink);
+  color: var(--bg);
 }
 #ro-street {
   font-size: 0.68rem;
-  color: var(--ink2);
+  color: var(--line);
   font-style: italic;
   white-space: nowrap;
   overflow: hidden;
@@ -405,7 +405,7 @@ html, body {
 }
 #ro-mult {
   font-size: 0.68rem;
-  color: var(--red);
+  color: var(--gold);
   font-weight: 600;
 }
 
