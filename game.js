@@ -162,6 +162,9 @@ function initMap() {
     maxBounds: AMBA_BOUNDS,
     maxBoundsViscosity: 0.9,
     zoomControl: true,
+    rotate: true,
+    touchRotate: true,
+    rotateControl: { closeOnZeroBearing: true },
   });
 
   L.tileLayer(
@@ -350,6 +353,7 @@ function showFinal() {
   if (gameMode === 'practice') {
     shareBtn.classList.add('hidden');
     backBtn.classList.remove('hidden');
+    document.getElementById('ranking-section').classList.add('hidden');
     const remaining = Math.max(0, PRACTICE_MAX - getPracticeCount());
     note.textContent = remaining > 0
       ? `Te quedan ${remaining} cruces de práctica hoy.`
@@ -359,6 +363,7 @@ function showFinal() {
     backBtn.classList.remove('hidden');
     note.textContent = 'Volvé mañana para cinco nuevos cruces.';
     saveProgress(true);
+    showRankingSection(totalScore);
   }
 
   showScreen('screen-final');
@@ -472,6 +477,65 @@ function currentMaxScore() {
   return DAILY_MODES[gameMode] ? DAILY_MODES[gameMode].maxScore : totalRounds * 100;
 }
 
+// ─── RANKING ──────────────────────────────────────────────────────────────────
+
+function getRanking(mode) {
+  try {
+    const raw = localStorage.getItem(`amba-ranking-${mode}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveToRanking(mode, name, score) {
+  try {
+    const ranking = getRanking(mode);
+    const d = new Date();
+    const date = `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+    ranking.push({ name: name.trim(), score, date });
+    ranking.sort((a, b) => b.score - a.score);
+    ranking.splice(20);
+    localStorage.setItem(`amba-ranking-${mode}`, JSON.stringify(ranking));
+    return ranking;
+  } catch { return []; }
+}
+
+let rankingActiveMode = 'amba';
+
+function renderRanking(mode, myScore) {
+  rankingActiveMode = mode;
+  document.querySelectorAll('.ranking-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  const ranking = getRanking(mode);
+  const list = document.getElementById('ranking-list');
+  if (ranking.length === 0) {
+    list.innerHTML = '<p class="ranking-empty">Todavía no hay puntajes. ¡Sé el primero!</p>';
+    return;
+  }
+  list.innerHTML = ranking.map((entry, i) => {
+    const isMe = myScore !== undefined && entry.score === myScore && mode === gameMode;
+    return `<div class="lb-row${isMe ? ' lb-me' : ''}">
+      <span class="lb-pos">${i + 1}</span>
+      <span class="lb-name">${entry.name}</span>
+      <span class="lb-right"><span class="lb-score">${entry.score}</span><span class="lb-date">${entry.date}</span></span>
+    </div>`;
+  }).join('');
+}
+
+function showRankingSection(myScore) {
+  const section = document.getElementById('ranking-section');
+  section.classList.remove('hidden');
+  renderRanking(gameMode, myScore);
+
+  const saveRow = document.getElementById('ranking-save-row');
+  if (['amba','caba','gba'].includes(gameMode)) {
+    saveRow.classList.remove('hidden');
+    document.getElementById('ranking-name-input').value = '';
+  } else {
+    saveRow.classList.add('hidden');
+  }
+}
+
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 
 function resetGameState() {
@@ -539,6 +603,19 @@ function boot() {
   document.getElementById('btn-share').addEventListener('click', share);
   document.getElementById('btn-back-menu').addEventListener('click', () => {
     showScreen('screen-intro');
+  });
+
+  document.querySelectorAll('.ranking-tab').forEach(btn => {
+    btn.addEventListener('click', () => renderRanking(btn.dataset.mode, totalScore));
+  });
+
+  document.getElementById('btn-save-ranking').addEventListener('click', () => {
+    const input = document.getElementById('ranking-name-input');
+    const name = input.value.trim();
+    if (!name) return;
+    saveToRanking(gameMode, name, totalScore);
+    document.getElementById('ranking-save-row').classList.add('hidden');
+    renderRanking(gameMode, totalScore);
   });
 }
 

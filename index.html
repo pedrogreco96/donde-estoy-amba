@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>¿Dónde estoy? AMBA</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -94,6 +95,23 @@
       <span id="final-score-max">/1000</span>
     </div>
     <div id="final-rounds-list"></div>
+
+    <div id="ranking-section" class="hidden">
+      <div class="ranking-header">
+        <span class="ranking-title">Ranking</span>
+        <div class="ranking-tabs">
+          <button class="ranking-tab" data-mode="amba">AMBA</button>
+          <button class="ranking-tab" data-mode="caba">CABA</button>
+          <button class="ranking-tab" data-mode="gba">GBA</button>
+        </div>
+      </div>
+      <div id="ranking-list"></div>
+      <div id="ranking-save-row" class="hidden">
+        <input type="text" id="ranking-name-input" placeholder="Tu nombre o apodo" maxlength="20" />
+        <button class="btn-primary" id="btn-save-ranking">Guardar</button>
+      </div>
+    </div>
+
     <div id="final-buttons">
       <button class="btn-primary" id="btn-share">Compartir resultado</button>
       <button class="btn-secondary hidden" id="btn-back-menu">Volver al menú</button>
@@ -104,6 +122,7 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
 <script src="game.js"></script>
 </body>
 </html>
