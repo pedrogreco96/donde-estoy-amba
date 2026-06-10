@@ -482,9 +482,9 @@ function currentMaxScore() {
 const SB_URL = 'https://eysevickmevsbbxpvyxm.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV5c2V2aWNrbWV2c2JieHB2eXhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwOTU3MjYsImV4cCI6MjA5NjY3MTcyNn0.pCTs5juJsu-q8y3gFQSgjjQHZ9Up3-gneKYNLTxcl2Q';
 
-async function fetchRanking(mode) {
+async function fetchRanking(mode, day) {
   const res = await fetch(
-    `${SB_URL}/rest/v1/ranking?mode=eq.${mode}&order=score.desc&limit=20`,
+    `${SB_URL}/rest/v1/ranking?mode=eq.${mode}&day=eq.${day}&order=score.desc&limit=20`,
     { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
   );
   if (!res.ok) return [];
@@ -502,46 +502,74 @@ async function insertRanking(mode, name, score) {
       'Content-Type': 'application/json',
       Prefer: 'return=minimal',
     },
-    body: JSON.stringify({ mode, name: name.trim(), score, date }),
+    body: JSON.stringify({ mode, name: name.trim(), score, date, day: today() }),
   });
 }
 
 let rankingMyScore = undefined;
+let rankingViewDay  = '';
 
-function renderRankingRows(entries, myScore, mode) {
+function formatDayDisplay(day) {
+  if (day === today()) return 'Hoy';
+  const [y, m, d] = day.split('-').map(Number);
+  return `${d} de ${MONTH_NAMES[m - 1]}`;
+}
+
+function renderRankingRows(entries, myScore, mode, day) {
   document.querySelectorAll('.ranking-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === mode);
   });
+  const label = document.getElementById('ranking-day-label');
+  if (label) label.textContent = formatDayDisplay(day);
+
   const list = document.getElementById('ranking-list');
   if (!entries.length) {
-    list.innerHTML = '<p class="ranking-empty">Todavía no hay puntajes. ¡Sé el primero!</p>';
+    list.innerHTML = '<p class="ranking-empty">Sin puntajes para este día.</p>';
     return;
   }
   list.innerHTML = entries.map((entry, i) => {
-    const isMe = myScore !== undefined && entry.score === myScore && mode === gameMode;
+    const isMe = myScore !== undefined && day === today() && entry.score === myScore && mode === gameMode;
     return `<div class="lb-row${isMe ? ' lb-me' : ''}">
       <span class="lb-pos">${i + 1}</span>
       <span class="lb-name">${entry.name}</span>
-      <span class="lb-right"><span class="lb-score">${entry.score}</span><span class="lb-date">${entry.date}</span></span>
+      <span class="lb-right"><span class="lb-score">${entry.score}</span></span>
     </div>`;
   }).join('');
 }
 
-async function loadAndRenderRanking(mode) {
+async function loadAndRenderRanking(mode, day) {
+  rankingViewDay = day || today();
   document.querySelectorAll('.ranking-tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === mode);
   });
   const list = document.getElementById('ranking-list');
   list.innerHTML = '<p class="ranking-empty">Cargando...</p>';
-  const entries = await fetchRanking(mode);
-  renderRankingRows(entries, rankingMyScore, mode);
+  const entries = await fetchRanking(mode, rankingViewDay);
+  renderRankingRows(entries, rankingMyScore, mode, rankingViewDay);
+
+  const prevBtn = document.getElementById('ranking-prev');
+  const nextBtn = document.getElementById('ranking-next');
+  if (prevBtn && nextBtn) {
+    nextBtn.disabled = rankingViewDay >= today();
+  }
+}
+
+function shiftRankingDay(delta) {
+  const d = new Date(rankingViewDay + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  const newDay = d.toISOString().slice(0, 10);
+  if (newDay > today()) return;
+  const activeTab = document.querySelector('.ranking-tab.active');
+  const mode = activeTab ? activeTab.dataset.mode : gameMode;
+  loadAndRenderRanking(mode, newDay);
 }
 
 function showRankingSection(myScore) {
   rankingMyScore = myScore;
+  rankingViewDay  = today();
   const section = document.getElementById('ranking-section');
   section.classList.remove('hidden');
-  loadAndRenderRanking(gameMode);
+  loadAndRenderRanking(gameMode, today());
 
   const saveRow = document.getElementById('ranking-save-row');
   if (['amba','caba','gba'].includes(gameMode)) {
@@ -622,8 +650,11 @@ function boot() {
   });
 
   document.querySelectorAll('.ranking-tab').forEach(btn => {
-    btn.addEventListener('click', () => loadAndRenderRanking(btn.dataset.mode));
+    btn.addEventListener('click', () => loadAndRenderRanking(btn.dataset.mode, rankingViewDay));
   });
+
+  document.getElementById('ranking-prev').addEventListener('click', () => shiftRankingDay(-1));
+  document.getElementById('ranking-next').addEventListener('click', () => shiftRankingDay(+1));
 
   document.getElementById('btn-save-ranking').addEventListener('click', async () => {
     const input = document.getElementById('ranking-name-input');
@@ -634,7 +665,7 @@ function boot() {
     btn.textContent = '...';
     await insertRanking(gameMode, name, totalScore);
     document.getElementById('ranking-save-row').classList.add('hidden');
-    await loadAndRenderRanking(gameMode);
+    await loadAndRenderRanking(gameMode, today());
   });
 }
 
