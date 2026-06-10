@@ -291,19 +291,7 @@ html, body {
 }
 
 /* ─── RESULT BAR ─── */
-#result-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 500;
-  pointer-events: none;
-  animation: fade-in 0.2s ease-out;
-}
-#result-overlay.hidden { display: none; }
-
 #result-bar {
-  pointer-events: all;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -311,7 +299,11 @@ html, body {
   background: var(--ink);
   padding: 10px 12px;
   width: 100%;
+  flex-shrink: 0;
+  z-index: 1000;
+  animation: fade-in 0.2s ease-out;
 }
+#result-bar.hidden { display: none; }
 
 #result-overlay-score {
   display: flex;

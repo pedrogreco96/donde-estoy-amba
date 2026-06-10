@@ -228,7 +228,7 @@ function startRound(idx) {
   showingResult = false;
 
   // Ocultar overlays
-  document.getElementById('result-overlay').classList.add('hidden');
+  document.getElementById('result-bar').classList.add('hidden');
   hideConfirmOverlay();
 
   // Limpiar marcadores del mapa
@@ -295,7 +295,7 @@ function showRoundResult(result) {
   document.getElementById('ro-mult').textContent     =
     mult > 1 ? `Base ${rawScore} × ${mult} = ${finalScore} pts` : '';
 
-  document.getElementById('result-overlay').classList.remove('hidden');
+  document.getElementById('result-bar').classList.remove('hidden');
 }
 
 function nextRound() {

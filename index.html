@@ -63,21 +63,20 @@
       <button class="btn-cancel" id="btn-cancel-guess">✕</button>
     </div>
 
-    <!-- OVERLAY de resultado — aparece sobre el mapa después de adivinar -->
-    <div id="result-overlay" class="hidden">
-      <div id="result-bar">
-        <div id="result-overlay-score">
-          <span id="ro-pts">0</span>
-          <span class="ro-label">pts</span>
-        </div>
-        <div id="result-overlay-info">
-          <p id="ro-distance"></p>
-          <p id="ro-street"></p>
-          <p id="ro-mult"></p>
-        </div>
-        <button class="btn-next-inline" id="btn-next-round">→</button>
-      </div>
+  </div>
+
+  <!-- BARRA de resultado — fuera del mapa, siempre en el flujo normal -->
+  <div id="result-bar" class="hidden">
+    <div id="result-overlay-score">
+      <span id="ro-pts">0</span>
+      <span class="ro-label">pts</span>
     </div>
+    <div id="result-overlay-info">
+      <p id="ro-distance"></p>
+      <p id="ro-street"></p>
+      <p id="ro-mult"></p>
+    </div>
+    <button class="btn-next-inline" id="btn-next-round">→</button>
   </div>
 
   <div id="game-footer">
