@@ -175,10 +175,10 @@ function initMap() {
 let showingResult = false;
 
 function showConfirmOverlay() {
-  document.getElementById('confirm-overlay').classList.remove('hidden');
+  document.getElementById('confirm-overlay').classList.add('visible');
 }
 function hideConfirmOverlay() {
-  document.getElementById('confirm-overlay').classList.add('hidden');
+  document.getElementById('confirm-overlay').classList.remove('visible');
 }
 
 function onMapClick(e) {
