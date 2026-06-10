@@ -282,7 +282,10 @@ function showRoundResult(result) {
   const targetLL = L.latLng(intersection.lat, intersection.lon);
   L.marker(targetLL, { icon: makePinIcon('target') }).addTo(map);
   L.polyline([guessLL, targetLL], { color: 'rgba(255,255,255,0.5)', dashArray: '6,4', weight: 2 }).addTo(map);
-  map.fitBounds(L.latLngBounds([guessLL, targetLL]).pad(0.35), { maxZoom: 14, animate: true });
+  setTimeout(() => {
+    map.invalidateSize();
+    map.fitBounds(L.latLngBounds([guessLL, targetLL]).pad(0.35), { maxZoom: 14, animate: true });
+  }, 50);
 
   // Rellenar overlay
   const scoreEl = document.getElementById('result-overlay-score');
